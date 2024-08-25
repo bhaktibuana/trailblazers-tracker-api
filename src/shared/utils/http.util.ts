@@ -23,19 +23,29 @@ export class HTTP {
 		} as I_HTTPResponse<T>);
 	}
 
-	public static errorResponse<T>(error: T, res: Response): void {
+	private static baseErrorResponse<T>(
+		res: Response,
+		message: string,
+		statusCode: number,
+		error: T | null = null,
+	): void {
+		res.status(statusCode).json({
+			message,
+			status: statusCode >= 200 && statusCode < 300,
+			status_code: statusCode,
+			data: null,
+			error,
+			pagination: null,
+		} as I_HTTPResponse<T>);
+	}
+
+	public static errorResponse<T>(res: Response, error: T): void {
 		if (error instanceof AppError) {
-			HTTP.response(res, error.message, error.statusCode);
+			HTTP.baseErrorResponse(res, error.message, error.statusCode, error.stack);
 		} else {
-			Console.error('Internal Server Error', error);
-			res.status(500).json({
-				message: 'Internal server error',
-				status: false,
-				status_code: 500,
-				data: null,
-				error,
-				pagination: null,
-			} as I_HTTPResponse<T>);
+			const errorMessage = 'Internal Server Error';
+			Console.error(errorMessage, error);
+			HTTP.baseErrorResponse(res, errorMessage, 500, error);
 		}
 	}
 }

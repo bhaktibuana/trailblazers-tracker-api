@@ -4,14 +4,16 @@ import { Middleware } from '@/app/middlewares';
 
 type T_KeyMiddlewares = (keyof Middleware)[];
 
-export abstract class RouterLibrary extends Middleware {
+export abstract class RouterLibrary<T> extends Middleware {
 	private router: Router;
 	private prefix: string;
+	protected controller: T;
 
-	constructor(router: Router, prefix: string = '') {
+	constructor(router: Router, prefix: string = '', controller: T) {
 		super();
 		this.router = router;
 		this.prefix = prefix;
+		this.controller = controller;
 	}
 
 	/**
@@ -47,7 +49,7 @@ export abstract class RouterLibrary extends Middleware {
 		this.router.get(
 			`${this.prefix}${path}`,
 			...this.mapMiddleware(middlewares),
-			controller,
+			controller.bind(this.controller),
 		);
 	}
 
@@ -66,7 +68,7 @@ export abstract class RouterLibrary extends Middleware {
 		this.router.post(
 			`${this.prefix}${path}`,
 			...this.mapMiddleware(middlewares),
-			controller,
+			controller.bind(this.controller),
 		);
 	}
 
@@ -85,7 +87,7 @@ export abstract class RouterLibrary extends Middleware {
 		this.router.put(
 			`${this.prefix}${path}`,
 			...this.mapMiddleware(middlewares),
-			controller,
+			controller.bind(this.controller),
 		);
 	}
 
@@ -104,7 +106,7 @@ export abstract class RouterLibrary extends Middleware {
 		this.router.delete(
 			`${this.prefix}${path}`,
 			...this.mapMiddleware(middlewares),
-			controller,
+			controller.bind(this.controller),
 		);
 	}
 }

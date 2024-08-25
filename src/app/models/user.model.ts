@@ -1,4 +1,4 @@
-import mongoose, { Model, model, Schema } from 'mongoose';
+import mongoose, { Model } from 'mongoose';
 
 import { ModelLibrary } from '@/libs';
 import { UserSchema } from '@/app/models/schemas/user.schema';

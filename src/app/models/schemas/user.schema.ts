@@ -1,33 +1,10 @@
 import { Schema } from 'mongoose';
 import dayjs from 'dayjs';
 
-import { I_User } from '@/app/models/interfaces/user.interface';
+import { I_UserBase } from '@/app/models/interfaces/user.interface';
 
 export class UserSchema {
-	public address: string;
-	public rank: I_User['rank'];
-	public score: I_User['score'];
-	public multiplier: I_User['multiplier'];
-	public created_at: Date;
-	public updated_at: Date;
-	public deleted_at: Date | null;
-
-	constructor(
-		address: string,
-		rank: I_User['rank'],
-		score: I_User['score'],
-		multiplier: I_User['multiplier'],
-	) {
-		this.address = address;
-		this.rank = rank;
-		this.score = score;
-		this.multiplier = multiplier;
-		this.created_at = dayjs().toDate();
-		this.updated_at = dayjs().toDate();
-		this.deleted_at = null;
-	}
-
-	private static rankSchema = new Schema<I_User['rank']>(
+	private static rankSchema = new Schema<I_UserBase['rank']>(
 		{
 			current: { type: Number },
 			final: { type: Number },
@@ -35,7 +12,7 @@ export class UserSchema {
 		{ _id: false },
 	);
 
-	private static scoreSchema = new Schema<I_User['score']>(
+	private static scoreSchema = new Schema<I_UserBase['score']>(
 		{
 			current: { type: Number },
 			final: { type: Number },
@@ -43,7 +20,7 @@ export class UserSchema {
 		{ _id: false },
 	);
 
-	private static multiplierSchema = new Schema<I_User['multiplier']>(
+	private static multiplierSchema = new Schema<I_UserBase['multiplier']>(
 		{
 			base_multiplier: { type: Number },
 			faction_multiplier: { type: Number },
@@ -56,7 +33,7 @@ export class UserSchema {
 	);
 
 	public static getSchema() {
-		return new Schema<UserSchema>({
+		return new Schema<I_UserBase>({
 			address: { type: String, required: true },
 			rank: { type: this.rankSchema, required: true },
 			score: { type: this.scoreSchema, required: true },

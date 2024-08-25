@@ -1,9 +1,9 @@
 import { Router } from 'express';
 
-import { HelloRouter } from '@/app/routers/hello.router';
+import { UserRouter } from '@/app/routers/user.router';
 
 export class AppRouter {
 	constructor(router: Router) {
-		new HelloRouter(router);
+		new UserRouter(router);
 	}
 }
