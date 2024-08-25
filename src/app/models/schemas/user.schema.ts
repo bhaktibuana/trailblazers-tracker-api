@@ -38,6 +38,7 @@ export class UserSchema {
 			rank: { type: this.rankSchema, required: true },
 			score: { type: this.scoreSchema, required: true },
 			multiplier: { type: this.multiplierSchema, required: true },
+			profile_url: { type: String, required: true },
 			created_at: {
 				type: Date,
 				required: true,

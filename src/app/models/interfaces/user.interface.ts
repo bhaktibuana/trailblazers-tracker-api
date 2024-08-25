@@ -7,6 +7,7 @@ export interface I_UserBase {
 	rank?: I_Rank;
 	score?: I_Score;
 	multiplier?: I_Multiplier;
+	profile_url?: string;
 	created_at?: Date;
 	updated_at?: Date;
 	deleted_at?: Date | null;

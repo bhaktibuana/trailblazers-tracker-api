@@ -4,7 +4,8 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 
 import { routers } from '@/app/routers';
-import { DatabaseConfig } from '@/configs/database.config';
+import { DatabaseConfig } from '@/configs';
+import { TaikoTrailbalzersService } from './services';
 
 export class App {
 	private readonly app = express();
@@ -22,6 +23,9 @@ export class App {
 	private init(): void {
 		const database = new DatabaseConfig();
 		database.connect();
+
+		const test = new TaikoTrailbalzersService();
+		test.syncUser();
 	}
 
 	/**
