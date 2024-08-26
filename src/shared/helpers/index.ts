@@ -11,7 +11,7 @@ export class Helper {
 
 	/**
 	 * Count Progress Percentage
-	 * 
+	 *
 	 * @param current number
 	 * @param max number
 	 * @returns string
