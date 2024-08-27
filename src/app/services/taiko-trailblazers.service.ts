@@ -27,40 +27,115 @@ export class TaikoTrailbalzersService extends Service {
 		page: number = 0,
 		size: number = 100000,
 	): Promise<I_TaikoGetUsersResponse> {
-		const taikoUsers = await this.taikoTrailblazersApi.getUsers({
-			page: page.toString(),
-			size: size.toString(),
-			sort: 'score',
-		});
-		return taikoUsers;
+		try {
+			const taikoUsers = await this.taikoTrailblazersApi.getUsers({
+				page: page.toString(),
+				size: size.toString(),
+				sort: 'score',
+			});
+			return taikoUsers;
+		} catch (error) {
+			console.log('Unstable Connection, reconnecting...');
+			return await this.getTaikoUsers(page, size);
+		}
 	}
 
 	private async getUserNFT(address: string): Promise<I_TaikoGetNFTResponse> {
-		const userNft = await this.goldskyApi.getNFT(address.toLowerCase());
-		return userNft;
+		try {
+			const userNft = await this.goldskyApi.getNFT(address.toLowerCase());
+			return userNft;
+		} catch (error) {
+			console.log('Unstable Connection, reconnecting...');
+			return await this.getUserNFT(address);
+		}
 	}
 
 	private async getUserRank(
 		address: string,
 	): Promise<I_TaikoGetUserRankResponse> {
-		const userRank = await this.taikoTrailblazersApi.getUserRank(address);
-		return userRank;
+		try {
+			const userRank =
+				await this.taikoTrailblazersApi.getUserRank(address);
+			return userRank;
+		} catch (error) {
+			console.log('Unstable Connection, reconnecting...');
+			return await this.getUserRank(address);
+		}
 	}
 
-	public async syncUser(primaryAddress: string, primaryMultiplier: number) {
+	public async validateUser(primaryAddress: string) {
+		const primaryRank = await this.getUserRank(primaryAddress);
+		const level13Rank = Math.floor(
+			primaryRank.total * Constant.LVL_13_THRESHOLD,
+		);
+
+		if (primaryRank.rank > level13Rank) {
+			throw this.errorHandler(400, 'Only level 13 & 14 allowed.');
+		}
+
+		return {
+			score: primaryRank.score,
+			multiplier: primaryRank.multiplier,
+		};
+	}
+
+	public async syncUser() {
 		let totalUser = 0;
 		let currentUser = 0;
 		let isComplete = false;
 		let isSuccess = false;
 		let currentLoop = 0;
 
+		let primaryAddress = '';
+
 		try {
+			console.log('[SYNC PROGRESS] => Staring...');
+
 			const initialData = await this.getTaikoUsers(0, 1);
 			totalUser = initialData.total;
 			isComplete = initialData.last;
 
+			const level13Rank = Math.floor(
+				totalUser * Constant.LVL_13_THRESHOLD,
+			);
+			const maxLvl12User = totalUser - level13Rank;
+
+			// get lowest level 13 user
+			const size = 200000;
+			while (true) {
+				const users = await this.getTaikoUsers(currentLoop, size);
+
+				for (let i = 0; i < users.items.length; i++) {
+					currentUser += 1;
+					const progress = Helper.countProgress(
+						currentUser,
+						maxLvl12User,
+					);
+					console.log(
+						`[SYNC PROGRESS] => Getting lowest level 13 user address. ${currentUser} of ${maxLvl12User} (${progress})!`,
+					);
+					if (currentUser > maxLvl12User) {
+						primaryAddress =
+							users.items[currentUser - currentLoop * size]
+								.address;
+						break;
+					}
+				}
+				if (currentUser > maxLvl12User) break;
+				currentLoop += 1;
+			}
+
+			console.log(
+				`[SYNC PROGRESS] => Gothca! We got the lowest level 13 user address!`,
+			);
+			console.log(`[SYNC PROGRESS] => ${primaryAddress.toLowerCase()}`);
+
+			currentLoop = 0;
+			currentUser = 0;
+
 			const primaryRank = await this.getUserRank(primaryAddress);
 			const primaryScore = primaryRank.score;
+			const primaryMultiplier = primaryRank.multiplier;
 
 			while (!isComplete) {
 				const payload: I_UserBase = {} as I_UserBase;

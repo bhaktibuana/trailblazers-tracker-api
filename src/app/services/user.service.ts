@@ -82,14 +82,14 @@ export class UserService extends Service {
 		return response;
 	}
 
-	public async countAhead(): Promise<object> {
+	public async countAhead(address: string): Promise<object> {
 		const pipelines: PipelineStage[] = [
 			{
 				$facet: {
 					primary: [
 						{
 							$match: {
-								address: Constant.PRIMARY_ADDRESS,
+								address: address,
 							},
 						},
 						{
@@ -103,7 +103,7 @@ export class UserService extends Service {
 						{
 							$match: {
 								address: {
-									$ne: Constant.PRIMARY_ADDRESS,
+									$ne: address,
 								},
 							},
 						},
@@ -188,7 +188,7 @@ export class UserService extends Service {
 		return result;
 	}
 
-	public async export(req: Request): Promise<object> {
+	public async export(req: Request, address: string): Promise<object> {
 		const url = `${req.protocol}://${req.headers.host}`;
 		const fileName = `trailblazers-user_${dayjs().format('DD-MM-YYYY-HH:mm:ss')}.xlsx`;
 		const filePath = path.join(process.cwd(), `./public/${fileName}`);
@@ -200,7 +200,7 @@ export class UserService extends Service {
 
 		const currentScoreData = await this.getByScore('current');
 		const finalScoreData = await this.getByScore('final');
-		const countAheadData = await this.countAhead();
+		const countAheadData = await this.countAhead(address);
 
 		const worksheet1 = XLSX.utils.json_to_sheet(
 			currentScoreData.map((user) => ({

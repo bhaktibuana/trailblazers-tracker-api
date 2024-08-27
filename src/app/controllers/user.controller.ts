@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 
 import { Controller } from '@/libs';
 import { TaikoTrailbalzersService, UserService } from '@/app/services';
-import { Constant } from '@/shared/constants';
 
 export class UserController extends Controller {
 	private userService: UserService;
@@ -26,11 +25,8 @@ export class UserController extends Controller {
 		}
 	}
 
-	public async syncUser(req: Request, res: Response): Promise<void> {
-		this.taikoTrailblazersService.syncUser(
-			Constant.PRIMARY_ADDRESS,
-			Constant.PRIMARY_MULTIPLIER,
-		);
+	public async syncUser(_req: Request, res: Response): Promise<void> {
+		this.taikoTrailblazersService.syncUser();
 		this.response(res, 'Sync User in progress', this.STATUS_CODE.OK);
 	}
 
@@ -69,9 +65,13 @@ export class UserController extends Controller {
 		}
 	}
 
-	public async countAhead(_req: Request, res: Response): Promise<void> {
+	public async countAhead(req: Request, res: Response): Promise<void> {
+		const { query } = req;
+		const address = (query.address as string).toLowerCase();
+
 		try {
-			const response = await this.userService.countAhead();
+			await this.taikoTrailblazersService.validateUser(address);
+			const response = await this.userService.countAhead(address);
 			this.response(
 				res,
 				'User ahead of primary',
@@ -86,8 +86,12 @@ export class UserController extends Controller {
 	}
 
 	public async export(req: Request, res: Response): Promise<void> {
+		const { body } = req;
+		const address = body.address.toLowerCase();
+
 		try {
-			const response = await this.userService.export(req);
+			await this.taikoTrailblazersService.validateUser(address);
+			const response = await this.userService.export(req, address);
 			this.response(
 				res,
 				'Export successful',

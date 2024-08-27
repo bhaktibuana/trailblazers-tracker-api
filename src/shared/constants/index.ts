@@ -7,4 +7,7 @@ export class Constant {
 	public static readonly PRIMARY_ADDRESS =
 		'0x6b2c3f7bf57eeca90d4392edd036d6426c74fac2';
 	public static readonly PRIMARY_MULTIPLIER = 2.144;
+
+	public static readonly LVL_13_THRESHOLD = 0.1 / 100;
+	public static readonly LVL_14_THRESHOLD = 0.01 / 100;
 }

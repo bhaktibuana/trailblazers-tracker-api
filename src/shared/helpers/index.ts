@@ -17,6 +17,7 @@ export class Helper {
 	 * @returns string
 	 */
 	public static countProgress(current: number, max: number): string {
-		return `${(current / max) * 100}%`;
+		const percentage = (current / max) * 100;
+		return `${percentage.toFixed(2)}%`;
 	}
 }

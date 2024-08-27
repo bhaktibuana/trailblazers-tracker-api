@@ -8,7 +8,7 @@ import axios, {
 export abstract class ApiLibrary {
 	private api: AxiosInstance;
 
-	constructor(baseURL: string, timeout: number = 20000) {
+	constructor(baseURL: string, timeout: number = 60000) {
 		this.api = axios.create({
 			baseURL,
 			timeout,

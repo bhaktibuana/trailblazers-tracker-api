@@ -60,6 +60,9 @@ export interface I_TaikoGetNFTResponse {
 
 export interface I_TaikoGetUserRankResponse {
 	rank: number;
+	address: string;
 	score: number;
+	multiplier: number;
+	totalScore: number;
 	total: number;
 }
